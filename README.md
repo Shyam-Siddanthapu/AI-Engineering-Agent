@@ -76,8 +76,8 @@ Every response is returned in a structured format:
 ###  Diff Viewer (Developer Experience)
 
 - Highlights:
-  - ? Additions
-  - ? Deletions
+  -  Additions
+  -  Deletions
 - Visual comparison of changes
 
 ---
@@ -93,7 +93,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ? Modern UI (Chat-like Experience)
+###  Modern UI (Chat-like Experience)
 
 - Inspired by modern AI agents
 - Features:
@@ -209,7 +209,7 @@ Add logging to OrderService
 ---
 
 ##  Design Decisions
-### Why Provider-Agnostic?
+### Why Provider-Agnostic
 
 - Flexibility across environments
 - Enterprise-ready design
@@ -217,7 +217,7 @@ Add logging to OrderService
 
 ---
 
-### Why Structured Output?
+### Why Structured Output
 
 - Predictable UI rendering
 - Better debugging
@@ -227,7 +227,7 @@ Add logging to OrderService
 
 ##  What Makes This Project Stand Out
 
-- Not just a chatbot ? **Full AI workflow system**
+- Not just a chatbot  **Full AI workflow system**
 - Simulates real engineering tasks
 - Supports multiple AI backends
 - Designed with **production-level architecture**
