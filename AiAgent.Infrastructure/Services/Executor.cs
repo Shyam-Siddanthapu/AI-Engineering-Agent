@@ -16,6 +16,8 @@ public sealed class Executor : IExecutor
     private readonly RepoWorkspaceManager _workspaceManager;
     private readonly DiffService _diffService;
     private readonly IAgentExecutionRepository _executionRepository;
+    private readonly AiAgent.Infrastructure.Persistence.AgentExecutionDbContext _dbContext;
+    private readonly ConversationService _conversationService;
     private readonly ILogger<Executor> _logger;
 
     public Executor(
@@ -27,6 +29,8 @@ public sealed class Executor : IExecutor
         RepoWorkspaceManager workspaceManager,
         DiffService diffService,
         IAgentExecutionRepository executionRepository,
+        AiAgent.Infrastructure.Persistence.AgentExecutionDbContext dbContext,
+        ConversationService conversationService,
         ILogger<Executor> logger)
     {
         _intentClassifier = intentClassifier;
@@ -37,6 +41,8 @@ public sealed class Executor : IExecutor
         _workspaceManager = workspaceManager;
         _diffService = diffService;
         _executionRepository = executionRepository;
+        _dbContext = dbContext;
+        _conversationService = conversationService;
         _logger = logger;
     }
 
@@ -71,10 +77,35 @@ public sealed class Executor : IExecutor
             _logger.LogError(ex, "Context builder failed.");
         }
 
+        Conversation? conversation = null;
+        IReadOnlyList<Message> history = Array.Empty<Message>();
+        try
+        {
+            if (request.ConversationId.HasValue)
+            {
+                conversation = await _conversationService.GetConversation(request.ConversationId.Value, cancellationToken);
+            }
+
+            if (conversation is null)
+            {
+                conversation = await _conversationService.CreateConversation(request.Task, request.RepoUrl, cancellationToken);
+            }
+
+            history = await _conversationService.GetMessages(conversation.Id, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Conversation initialization failed.");
+        }
+
         var promptTemplate = _promptBuilder.BuildPrompt(intent, context, request.Task);
+        var historyPrompt = BuildHistoryPrompt(history, request.Task);
         var prompt = promptTemplate
             .Replace("{{$task}}", request.Task, StringComparison.Ordinal)
-            .Replace("{{$context}}", context, StringComparison.Ordinal);
+            .Replace("{{$context}}", context, StringComparison.Ordinal)
+            + Environment.NewLine
+            + Environment.NewLine
+            + historyPrompt;
         var chatService = _chatCompletionFactory.GetService(request.Provider);
 
         _logger.LogInformation("LLM provider: {Provider}", request.Provider);
@@ -142,10 +173,32 @@ public sealed class Executor : IExecutor
                 Provider = request.Provider,
                 Model = request.Model,
                 Result = responseText,
+                ConversationId = conversation?.Id,
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
             await _executionRepository.AddAsync(execution, cancellationToken);
+
+            if (conversation is not null)
+            {
+                _dbContext.Messages.Add(new Message
+                {
+                    ConversationId = conversation.Id,
+                    Role = "user",
+                    Content = request.Task,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                _dbContext.Messages.Add(new Message
+                {
+                    ConversationId = conversation.Id,
+                    Role = "assistant",
+                    Content = responseText,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
         }
         catch (Exception ex)
         {
@@ -225,6 +278,27 @@ public sealed class Executor : IExecutor
             DetailedExplanation = string.Empty,
             Steps = new List<string> { task }
         };
+    }
+
+    private static string BuildHistoryPrompt(IReadOnlyList<Message> history, string currentTask)
+    {
+        if (history.Count == 0)
+        {
+            return $"Conversation history:{Environment.NewLine}User: {currentTask}{Environment.NewLine}{Environment.NewLine}Now respond to latest request";
+        }
+
+        var builder = new System.Text.StringBuilder();
+        builder.AppendLine("Conversation history:");
+        foreach (var message in history)
+        {
+            var role = string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase) ? "Assistant" : "User";
+            builder.AppendLine($"{role}: {message.Content}");
+        }
+
+        builder.AppendLine($"User: {currentTask}");
+        builder.AppendLine();
+        builder.AppendLine("Now respond to latest request");
+        return builder.ToString();
     }
 
 }

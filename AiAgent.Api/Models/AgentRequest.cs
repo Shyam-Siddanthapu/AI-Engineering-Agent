@@ -21,6 +21,8 @@ public sealed class AgentRequest : IValidatableObject
 
     public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.Preview;
 
+    public Guid? ConversationId { get; set; }
+
     public IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> Validate(ValidationContext validationContext)
     {
         if (string.Equals(Provider, "AzureOpenAI", StringComparison.OrdinalIgnoreCase)
@@ -56,7 +58,8 @@ public sealed class AgentRequest : IValidatableObject
         Provider = Provider,
         Model = Model,
         ApiKey = ApiKey,
-        ExecutionMode = ExecutionMode
+        ExecutionMode = ExecutionMode,
+        ConversationId = ConversationId
     };
 
     public LlmRequestOptions ToLlmOptions()

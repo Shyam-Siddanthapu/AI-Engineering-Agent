@@ -47,6 +47,9 @@ public sealed class ResultsModel : PageModel
     public string? ApiKey { get; set; }
 
     [BindProperty]
+    public Guid? ConversationId { get; set; }
+
+    [BindProperty]
     public int MaxContextCharacters { get; set; } = 12000;
 
     public IReadOnlyList<string> Plan { get; private set; } = Array.Empty<string>();
@@ -72,7 +75,8 @@ public sealed class ResultsModel : PageModel
             Task = Task,
             Provider = Provider.ToString(),
             Model = Model,
-            ApiKey = ApiKey
+            ApiKey = ApiKey,
+            ConversationId = ConversationId
         };
 
         _llmRequestContext.Set(new LlmRequestOptions

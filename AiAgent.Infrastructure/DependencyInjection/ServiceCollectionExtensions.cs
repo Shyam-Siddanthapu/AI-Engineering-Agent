@@ -120,6 +120,7 @@ public static class ServiceCollectionExtensions
             options.UseSqlite($"Data Source={dbPath}");
         });
         services.AddScoped<IAgentExecutionRepository, AgentExecutionRepository>();
+        services.AddScoped<ConversationService>();
         services.AddSingleton<global::AiAgent.Infrastructure.Llm.ChatCompletionFactory>();
 
         return services;

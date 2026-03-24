@@ -11,4 +11,6 @@ public sealed class AgentExecutionDbContext : DbContext
     }
 
     public DbSet<AgentExecution> AgentExecutions => Set<AgentExecution>();
+    public DbSet<Conversation> Conversations => Set<Conversation>();
+    public DbSet<Message> Messages => Set<Message>();
 }

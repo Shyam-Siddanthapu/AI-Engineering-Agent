@@ -8,5 +8,6 @@ public sealed class AgentExecution
     public string Provider { get; set; } = string.Empty;
     public string? Model { get; set; }
     public string Result { get; set; } = string.Empty;
+    public Guid? ConversationId { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

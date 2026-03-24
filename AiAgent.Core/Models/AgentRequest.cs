@@ -8,4 +8,5 @@ public sealed record AgentRequest
     public string? Model { get; init; }
     public string? ApiKey { get; init; }
     public ExecutionMode ExecutionMode { get; init; } = ExecutionMode.Preview;
+    public Guid? ConversationId { get; init; }
 }

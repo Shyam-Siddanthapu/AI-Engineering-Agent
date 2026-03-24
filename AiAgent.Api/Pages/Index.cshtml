@@ -11,8 +11,9 @@
     </div>
 </section>
 
-<section class="panel">
+<section class="panel chat-main">
     <form method="post" asp-page="/Results" id="agentForm" class="form-grid" novalidate>
+        <input type="hidden" asp-for="ConversationId" />
         <div class="step-card">
             <label>
                 Repository URL
@@ -184,6 +185,7 @@
             });
             autoResize();
         }
+
 
     </script>
 }

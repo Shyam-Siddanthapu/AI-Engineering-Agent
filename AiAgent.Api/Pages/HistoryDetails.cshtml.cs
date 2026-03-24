@@ -24,6 +24,7 @@ public sealed class HistoryDetailsModel : PageModel
             return NotFound();
         }
 
+
         return Page();
     }
 }
