@@ -269,7 +269,7 @@ This file should be updated whenever new workflows, endpoints, or services are a
 
 ---
 
-## ? Author
+## Author
 
 **Shyam**
 Senior Software Engineer (.NET / Azure)
