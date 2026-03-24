@@ -1,0 +1,45 @@
+@page
+@model AiAgent.Api.Pages.HistoryModel
+@{
+    ViewData["Title"] = "Execution History";
+}
+
+<section class="panel">
+    <h2>Execution History</h2>
+    <div class="table-card">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Repo</th>
+                    <th>Provider</th>
+                    <th>Timestamp</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Executions.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5">No executions saved yet.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var execution in Model.Executions)
+                    {
+                        <tr>
+                            <td>@execution.Task</td>
+                            <td>@execution.RepoUrl</td>
+                            <td>@execution.Provider</td>
+                            <td>@execution.CreatedAt.ToLocalTime().ToString("g")</td>
+                            <td>
+                                <a class="link" asp-page="/HistoryDetails" asp-route-id="@execution.Id">View</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

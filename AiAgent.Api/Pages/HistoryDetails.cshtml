@@ -1,0 +1,29 @@
+@page "{id:guid}"
+@model AiAgent.Api.Pages.HistoryDetailsModel
+@{
+    ViewData["Title"] = "Execution Detail";
+}
+
+<section class="panel">
+    <h2>Execution Detail</h2>
+    @if (Model.Execution is null)
+    {
+        <p>Execution not found.</p>
+    }
+    else
+    {
+        <div class="card">
+            <p><strong>Task:</strong> @Model.Execution.Task</p>
+            <p><strong>Repo:</strong> @Model.Execution.RepoUrl</p>
+            <p><strong>Provider:</strong> @Model.Execution.Provider</p>
+            <p><strong>Model:</strong> @Model.Execution.Model</p>
+            <p><strong>Timestamp:</strong> @Model.Execution.CreatedAt.ToLocalTime().ToString("g")</p>
+        </div>
+        <details open class="accordion">
+            <summary>Result JSON</summary>
+            <div class="accordion-body">
+                <pre class="text-block scrollable">@Model.Execution.Result</pre>
+            </div>
+        </details>
+    }
+</section>

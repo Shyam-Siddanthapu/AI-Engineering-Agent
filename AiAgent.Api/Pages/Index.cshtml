@@ -1,0 +1,181 @@
+@page
+@model AiAgent.Api.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero">
+    <div>
+        <h1>AI Engineering Workflow Agent</h1>
+        <p>Analyze incidents, plan fixes, and generate tests with a clean architecture pipeline.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <form method="post" asp-page="/Results" id="agentForm" class="form-grid" novalidate>
+        <label>
+            Repository URL
+            <input asp-for="RepositoryUrl" placeholder="https://github.com/org/repo" required />
+            <span class="field-error" data-error-for="RepositoryUrl"></span>
+        </label>
+        <div class="chat-input">
+            <label class="chat-input-label">
+                Task
+                <div class="chat-input-container">
+                    <textarea asp-for="Task" rows="6" class="task-input" placeholder="Describe your task, paste code, SQL, or ask anything..." required></textarea>
+                    <button type="button" class="send-button" id="sendTask" aria-label="Send">
+                        <span class="send-icon">?</span>
+                    </button>
+                </div>
+                <span class="field-error" data-error-for="Task"></span>
+            </label>
+            <div class="chat-toolbar">
+                <span class="char-count" id="charCount">0</span>
+            </div>
+        </div>
+        <label>
+            Provider
+            <select asp-for="Provider" id="providerSelect">
+                <option value="Ollama">Ollama</option>
+                <option value="AzureOpenAI">Azure OpenAI</option>
+                <option value="Groq">Groq</option>
+                <option value="Mock">Mock</option>
+            </select>
+        </label>
+        <div id="mockNotice" class="mock-notice hidden">Mock mode enabled (no external AI required)</div>
+        <label>
+            Model
+            <input asp-for="Model" placeholder="llama3" />
+        </label>
+        <label>
+            API Key
+            <input asp-for="ApiKey" type="password" placeholder="Optional" />
+        </label>
+        <div class="form-actions full-width">
+            <button type="submit" class="primary">Run Analysis</button>
+        </div>
+    </form>
+</section>
+
+<div id="spinner" class="spinner hidden">
+    <div class="spinner-ring"></div>
+    <span>Processing... Please wait</span>
+</div>
+
+@section Scripts {
+    <script>
+        const form = document.getElementById('agentForm');
+        const spinner = document.getElementById('spinner');
+        const providerSelect = document.getElementById('providerSelect');
+        const modelSelect = document.getElementById('modelSelect');
+        const modelRow = document.getElementById('modelRow');
+        const apiKeyRow = document.getElementById('apiKeyRow');
+        const mockNotice = document.getElementById('mockNotice');
+        const toggleApiKey = document.getElementById('toggleApiKey');
+        const apiKeyInput = apiKeyRow.querySelector('input');
+        const taskInput = document.querySelector('textarea[name="Task"]');
+        const submitButton = document.getElementById('submitButton');
+        const buttonText = submitButton.querySelector('.button-text');
+        const buttonSpinner = submitButton.querySelector('.button-spinner');
+        const emptyState = document.getElementById('emptyState');
+        const clearTask = document.getElementById('clearTask');
+        const sendTask = document.getElementById('sendTask');
+        const charCount = document.getElementById('charCount');
+
+        const models = {
+            Ollama: ["llama3", "mistral", "phi"],
+            AzureOpenAI: ["gpt-4o-mini", "gpt-35-turbo"],
+            Groq: ["llama3-70b-8192"],
+            Mock: ["default"]
+        };
+
+        const updateModels = () => {
+            const provider = providerSelect.value;
+            const modelList = models[provider] || ["default"];
+            const current = modelSelect.value;
+            modelSelect.innerHTML = "";
+            for (const model of modelList) {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            }
+
+            if (current && modelList.includes(current)) {
+                modelSelect.value = current;
+            } else if (modelList.length > 0) {
+                modelSelect.value = modelList[0];
+            }
+        };
+
+        const updateApiKeyVisibility = () => {
+            const provider = providerSelect.value;
+            const needsKey = provider === 'AzureOpenAI' || provider === 'Groq';
+            apiKeyRow.style.display = needsKey ? 'block' : 'none';
+        };
+
+        toggleApiKey.addEventListener('click', () => {
+            const isPassword = apiKeyInput.type === 'password';
+            apiKeyInput.type = isPassword ? 'text' : 'password';
+            toggleApiKey.textContent = isPassword ? 'Hide' : 'Show';
+        });
+
+        providerSelect.addEventListener('change', () => {
+            updateModels();
+            updateApiKeyVisibility();
+            updateModelVisibility();
+            updateMockNotice();
+        });
+
+        updateModels();
+        updateApiKeyVisibility();
+        updateModelVisibility();
+        updateMockNotice();
+
+        form.addEventListener('submit', () => {
+            spinner.classList.remove('hidden');
+            submitButton.setAttribute('disabled', 'disabled');
+            submitButton.textContent = 'Running...';
+            sessionStorage.setItem('focusTaskOnReturn', 'true');
+        });
+
+        window.addEventListener('pageshow', () => {
+            if (sessionStorage.getItem('focusTaskOnReturn') === 'true' && taskInput) {
+                taskInput.focus();
+                sessionStorage.removeItem('focusTaskOnReturn');
+            }
+        });
+
+        const autoResize = () => {
+            if (!taskInput) {
+                return;
+            }
+
+            taskInput.style.height = 'auto';
+            const nextHeight = Math.min(taskInput.scrollHeight, 400);
+            taskInput.style.height = `${Math.max(nextHeight, 120)}px`;
+            if (charCount) {
+                charCount.textContent = `${taskInput.value.length}`;
+            }
+        };
+
+        if (taskInput) {
+            taskInput.addEventListener('input', () => {
+                autoResize();
+            });
+            taskInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                    event.preventDefault();
+                    form.requestSubmit();
+                }
+            });
+            autoResize();
+        }
+
+        if (sendTask) {
+            sendTask.addEventListener('click', () => {
+                form.requestSubmit();
+            });
+        }
+    </script>
+}

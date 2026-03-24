@@ -1,0 +1,154 @@
+@page
+@model AiAgent.Api.Pages.ResultsModel
+@{
+    ViewData["Title"] = "Results";
+}
+
+<div class="results-grid" id="resultContainer">
+    <section class="panel">
+        <h2>Summary</h2>
+        <div class="card summary-card">
+            <p>@Model.Summary</p>
+            @if (!string.IsNullOrWhiteSpace(Model.RootCause))
+            {
+                <p class="muted"><strong>Root cause:</strong> @Model.RootCause</p>
+            }
+        </div>
+    </section>
+
+    <section class="panel">
+        <details open class="accordion">
+            <summary>Detailed Explanation</summary>
+            <div class="accordion-body">
+                <pre class="text-block scrollable">@Model.DetailedExplanation</pre>
+            </div>
+        </details>
+    </section>
+
+    <section class="panel">
+        <details open class="accordion">
+            <summary>Steps</summary>
+            <div class="accordion-body">
+                @if (Model.Plan.Count == 0)
+                {
+                    <p>No steps returned.</p>
+                }
+                else
+                {
+                    <ol class="plan-list">
+                        @foreach (var step in Model.Plan)
+                        {
+                            <li>@step</li>
+                        }
+                    </ol>
+                }
+            </div>
+        </details>
+    </section>
+
+    <section class="panel">
+        <details class="accordion">
+            <summary>Code Changes</summary>
+            <div class="accordion-body">
+                @if (Model.CodeChanges.Count == 0)
+                {
+                    <p>No code changes generated.</p>
+                }
+                else
+                {
+                    @foreach (var change in Model.CodeChanges)
+                    {
+                        var lines = change.ModifiedCode.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                        <div class="card">
+                            <div class="card-header">@change.FilePath</div>
+                            <div class="diff-block scrollable">
+                                @foreach (var line in lines)
+                                {
+                                    var cssClass = line.StartsWith("+ ") ? "diff-add" : line.StartsWith("- ") ? "diff-del" : "diff-neutral";
+                                    <div class="diff-line @cssClass">@line</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </details>
+    </section>
+
+    <section class="panel">
+        <details class="accordion">
+            <summary>Test Cases</summary>
+            <div class="accordion-body">
+                @if (Model.Tests.Count == 0)
+                {
+                    <p>No tests generated.</p>
+                }
+                else
+                {
+                    @foreach (var test in Model.Tests)
+                    {
+                        <div class="card">
+                            <div class="card-header">Test Case</div>
+                            <pre class="code-block scrollable">@test</pre>
+                        </div>
+                    }
+                }
+            </div>
+        </details>
+    </section>
+
+    <section class="panel">
+        <details class="accordion">
+            <summary>Risks</summary>
+            <div class="accordion-body">
+                @if (Model.Risks.Count == 0)
+                {
+                    <p>No risks identified.</p>
+                }
+                else
+                {
+                    <ul class="bullet-list risk-list">
+                        @foreach (var risk in Model.Risks)
+                        {
+                            <li>@risk</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </details>
+    </section>
+
+    <section class="panel">
+        <details class="accordion">
+            <summary>Suggestions</summary>
+            <div class="accordion-body">
+                @if (Model.Suggestions.Count == 0)
+                {
+                    <p>No suggestions provided.</p>
+                }
+                else
+                {
+                    <ul class="bullet-list suggestion-list">
+                        @foreach (var suggestion in Model.Suggestions)
+                        {
+                            <li>@suggestion</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </details>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        const resultContainer = document.getElementById('resultContainer');
+        if (resultContainer) {
+            requestAnimationFrame(() => {
+                resultContainer.classList.add('message-visible');
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                sessionStorage.setItem('focusTaskOnReturn', 'true');
+            });
+        }
+    </script>
+}

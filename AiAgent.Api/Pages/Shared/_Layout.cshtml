@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - AI Engineering Agent</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="navbar">
+        <div class="container header-content">
+            <div class="brand">
+                <span class="brand-accent">AI</span> Engineering Agent
+            </div>
+            <nav class="nav-links">
+                <a asp-page="/Index">Home</a>
+                <a asp-page="/History">History</a>
+                <a asp-page="/About">About</a>
+                <a asp-page="/Contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        @RenderBody()
+    </main>
+
+    <footer class="app-footer">
+        <div class="container">
+            <span>AI Engineering Workflow Agent</span>
+        </div>
+    </footer>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
