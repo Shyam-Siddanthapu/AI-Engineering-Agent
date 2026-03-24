@@ -13,46 +13,49 @@
 
 <section class="panel">
     <form method="post" asp-page="/Results" id="agentForm" class="form-grid" novalidate>
-        <label>
-            Repository URL
-            <input asp-for="RepositoryUrl" placeholder="https://github.com/org/repo" required />
-            <span class="field-error" data-error-for="RepositoryUrl"></span>
-        </label>
-        <div class="chat-input">
-            <label class="chat-input-label">
-                Task
-                <div class="chat-input-container">
-                    <textarea asp-for="Task" rows="6" class="task-input" placeholder="Describe your task, paste code, SQL, or ask anything..." required></textarea>
-                    <button type="button" class="send-button" id="sendTask" aria-label="Send">
-                        <span class="send-icon">?</span>
-                    </button>
-                </div>
-                <span class="field-error" data-error-for="Task"></span>
+        <div class="step-card">
+            <label>
+                Repository URL
+                <input asp-for="RepositoryUrl" placeholder="https://github.com/org/repo" required />
+                <span class="field-error" data-error-for="RepositoryUrl"></span>
             </label>
-            <div class="chat-toolbar">
-                <span class="char-count" id="charCount">0</span>
+            <div class="chat-input">
+                <label class="chat-input-label">
+                    Task
+                    <div class="chat-input-container">
+                        <textarea asp-for="Task" rows="6" class="task-input" placeholder="Describe your task, paste code, SQL, or ask anything..." required></textarea>
+                    </div>
+                    <span class="field-error" data-error-for="Task"></span>
+                </label>
             </div>
         </div>
-        <label>
-            Provider
-            <select asp-for="Provider" id="providerSelect">
-                <option value="Ollama">Ollama</option>
-                <option value="AzureOpenAI">Azure OpenAI</option>
-                <option value="Groq">Groq</option>
-                <option value="Mock">Mock</option>
-            </select>
-        </label>
-        <div id="mockNotice" class="mock-notice hidden">Mock mode enabled (no external AI required)</div>
-        <label>
-            Model
-            <input asp-for="Model" placeholder="llama3" />
-        </label>
-        <label>
-            API Key
-            <input asp-for="ApiKey" type="password" placeholder="Optional" />
-        </label>
+        <div class="step-card">
+            <div class="step-stack">
+                <label>
+                    Provider
+                    <select asp-for="Provider" id="providerSelect">
+                        <option value="Ollama">Ollama</option>
+                        <option value="AzureOpenAI">Azure OpenAI</option>
+                        <option value="Groq">Groq</option>
+                        <option value="Mock">Mock</option>
+                    </select>
+                </label>
+                <div id="mockNotice" class="mock-notice hidden">Mock mode enabled (no external AI required)</div>
+                <label id="modelRow">
+                    Model
+                    <select asp-for="Model" id="modelSelect"></select>
+                </label>
+                <label id="apiKeyRow">
+                    API Key
+                    <input asp-for="ApiKey" type="password" placeholder="Required for Azure/Groq" />
+                </label>
+            </div>
+        </div>
         <div class="form-actions full-width">
-            <button type="submit" class="primary">Run Analysis</button>
+            <button type="submit" class="primary primary-large" id="submitButton">
+                <span class="button-text">Execute</span>
+                <span class="button-spinner" aria-hidden="true"></span>
+            </button>
         </div>
     </form>
 </section>
@@ -71,16 +74,11 @@
         const modelRow = document.getElementById('modelRow');
         const apiKeyRow = document.getElementById('apiKeyRow');
         const mockNotice = document.getElementById('mockNotice');
-        const toggleApiKey = document.getElementById('toggleApiKey');
         const apiKeyInput = apiKeyRow.querySelector('input');
         const taskInput = document.querySelector('textarea[name="Task"]');
         const submitButton = document.getElementById('submitButton');
         const buttonText = submitButton.querySelector('.button-text');
         const buttonSpinner = submitButton.querySelector('.button-spinner');
-        const emptyState = document.getElementById('emptyState');
-        const clearTask = document.getElementById('clearTask');
-        const sendTask = document.getElementById('sendTask');
-        const charCount = document.getElementById('charCount');
 
         const models = {
             Ollama: ["llama3", "mistral", "phi"],
@@ -112,13 +110,27 @@
             const provider = providerSelect.value;
             const needsKey = provider === 'AzureOpenAI' || provider === 'Groq';
             apiKeyRow.style.display = needsKey ? 'block' : 'none';
+            apiKeyInput.disabled = !needsKey || provider === 'Mock';
+            if (!needsKey || provider === 'Mock') {
+                apiKeyInput.value = '';
+            }
         };
 
-        toggleApiKey.addEventListener('click', () => {
-            const isPassword = apiKeyInput.type === 'password';
-            apiKeyInput.type = isPassword ? 'text' : 'password';
-            toggleApiKey.textContent = isPassword ? 'Hide' : 'Show';
-        });
+        const updateModelVisibility = () => {
+            const provider = providerSelect.value;
+            const showModels = provider !== 'Mock';
+            modelRow.style.display = showModels ? 'block' : 'none';
+            modelSelect.disabled = !showModels;
+        };
+
+        const updateMockNotice = () => {
+            const provider = providerSelect.value;
+            if (provider === 'Mock') {
+                mockNotice.classList.remove('hidden');
+            } else {
+                mockNotice.classList.add('hidden');
+            }
+        };
 
         providerSelect.addEventListener('change', () => {
             updateModels();
@@ -135,7 +147,8 @@
         form.addEventListener('submit', () => {
             spinner.classList.remove('hidden');
             submitButton.setAttribute('disabled', 'disabled');
-            submitButton.textContent = 'Running...';
+            buttonText.textContent = 'Processing...';
+            buttonSpinner.classList.add('visible');
             sessionStorage.setItem('focusTaskOnReturn', 'true');
         });
 
@@ -144,6 +157,9 @@
                 taskInput.focus();
                 sessionStorage.removeItem('focusTaskOnReturn');
             }
+            submitButton.removeAttribute('disabled');
+            buttonText.textContent = 'Execute';
+            buttonSpinner.classList.remove('visible');
         });
 
         const autoResize = () => {
@@ -154,9 +170,6 @@
             taskInput.style.height = 'auto';
             const nextHeight = Math.min(taskInput.scrollHeight, 400);
             taskInput.style.height = `${Math.max(nextHeight, 120)}px`;
-            if (charCount) {
-                charCount.textContent = `${taskInput.value.length}`;
-            }
         };
 
         if (taskInput) {
@@ -172,10 +185,5 @@
             autoResize();
         }
 
-        if (sendTask) {
-            sendTask.addEventListener('click', () => {
-                form.requestSubmit();
-            });
-        }
     </script>
 }
