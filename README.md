@@ -1,10 +1,10 @@
-# ?? AI Engineering Workflow Agent (.NET + Semantic Kernel)
+# AI Engineering Workflow Agent (.NET + Semantic Kernel)
 
 > Transforming developer intent into actionable engineering workflows using AI
 
 ---
 
-## ?? Overview
+##  Overview
 
 The **AI Engineering Workflow Agent** is a production-grade .NET 9 solution that helps teams triage incidents, plan fixes, and generate code + tests using local or pluggable LLMs. It provides API, CLI, and Razor Pages web UI interfaces while following clean architecture for maintainability and extensibility.
 
@@ -18,15 +18,15 @@ Unlike simple chatbots or code generators, this system is designed as an **end-t
 
 ---
 
-## ?? Problem Statement
+##  Problem Statement
 
-Modern engineering teams spend too much time correlating logs, tracing code, and creating fixes. Existing AI tools often focus on autocomplete rather than full workflow orchestration. This project demonstrates a scalable, end-to-end workflow agent that can ingest problems, analyze repositories, propose fixes, generate tests, and validate impact—locally and securely.
+Modern engineering teams spend too much time correlating logs, tracing code, and creating fixes. Existing AI tools often focus on autocomplete rather than full workflow orchestration. This project demonstrates a scalable, end-to-end workflow agent that can ingest problems, analyze repositories, propose fixes, generate tests, and validate impactâ€”locally and securely.
 
 ---
 
-## ?? Key Features
+##  Key Features
 
-### ?? Intelligent Task Understanding
+###  Intelligent Task Understanding
 
 - Supports **free-form input**
 - Accepts:
@@ -36,20 +36,20 @@ Modern engineering teams spend too much time correlating logs, tracing code, and
 
 ---
 
-### ?? Multi-Provider AI Architecture
+###  Multi-Provider AI Architecture
 
 Supports dynamic runtime selection of:
 
-- ?? **Mock Mode** (no external dependency)
-- ?? Azure OpenAI (pluggable)
-- ?? Groq (pluggable)
-- ?? Ollama (local LLM support)
+-  **Mock Mode** (no external dependency)
+-  Azure OpenAI (pluggable)
+-  Groq (pluggable)
+-  Ollama (local LLM support)
 
 > Designed with a **provider-agnostic architecture**
 
 ---
 
-### ?? Structured AI Responses
+###  Structured AI Responses
 
 Every response is returned in a structured format:
 
@@ -63,7 +63,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ?? Code Change Simulation
+###  Code Change Simulation
 
 - Simulates real-world code modifications
 - Supports multiple files
@@ -73,7 +73,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ?? Diff Viewer (Developer Experience)
+###  Diff Viewer (Developer Experience)
 
 - Highlights:
   - ? Additions
@@ -82,7 +82,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ?? Mock AI Engine (Unique Feature)
+###  Mock AI Engine (Unique Feature)
 
 - Fully functional **AI simulation layer**
 - No API keys required
@@ -93,7 +93,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ??? Modern UI (Chat-like Experience)
+### ? Modern UI (Chat-like Experience)
 
 - Inspired by modern AI agents
 - Features:
@@ -104,7 +104,7 @@ Every response is returned in a structured format:
 
 ---
 
-### ?? Secure API Key Handling
+###  Secure API Key Handling
 
 - API keys are:
   - Passed per request
@@ -113,7 +113,7 @@ Every response is returned in a structured format:
 
 ---
 
-## ?? Architecture
+##  Architecture
 
 ```
 AiAgent.Api            -> HTTP API + Razor Pages UI
@@ -133,7 +133,7 @@ AiAgent.Infrastructure -> LLM, repo, file, logging, and execution services
 
 ---
 
-## ?? Tech Stack
+##  Tech Stack
 
 - **.NET 9 (ASP.NET Core)**
 - **Semantic Kernel (Microsoft)**
@@ -143,9 +143,9 @@ AiAgent.Infrastructure -> LLM, repo, file, logging, and execution services
 
 ---
 
-## ?? Getting Started
+##  Getting Started
 
-### ?? Prerequisites
+###  Prerequisites
 
 - .NET 9 SDK
 - Visual Studio 2022 or newer
@@ -154,9 +154,9 @@ AiAgent.Infrastructure -> LLM, repo, file, logging, and execution services
 
 ---
 
-### ?? Run the Application
+###  Run the Application
 
-```sh
+```bash
 dotnet run --project AiAgent.Api
 ```
 
@@ -168,9 +168,9 @@ https://localhost:<port>
 
 ---
 
-### ?? CLI
+###  CLI
 
-```sh
+```bash
 dotnet run --project AiAgent.Cli -- execute --repo <url> --task "fix bug"
 ```
 
@@ -194,7 +194,7 @@ FileApply:
 
 ---
 
-## ?? Example Tasks
+##  Example Tasks
 
 Try these in the UI:
 
@@ -208,17 +208,8 @@ Add logging to OrderService
 
 ---
 
-## ?? Design Decisions
-
-### ? Why Mock Mode?
-
-- Enables development without API dependency
-- Works in restricted environments
-- Ensures consistent demos
-
----
-
-### ? Why Provider-Agnostic?
+##  Design Decisions
+### Why Provider-Agnostic?
 
 - Flexibility across environments
 - Enterprise-ready design
@@ -226,7 +217,7 @@ Add logging to OrderService
 
 ---
 
-### ? Why Structured Output?
+### Why Structured Output?
 
 - Predictable UI rendering
 - Better debugging
@@ -234,7 +225,7 @@ Add logging to OrderService
 
 ---
 
-## ?? What Makes This Project Stand Out
+##  What Makes This Project Stand Out
 
 - Not just a chatbot ? **Full AI workflow system**
 - Simulates real engineering tasks
@@ -244,7 +235,7 @@ Add logging to OrderService
 
 ---
 
-## ?? Future Enhancements
+##  Future Enhancements
 
 - Real repository integration (GitHub / Azure DevOps)
 - Automatic PR creation with CI validation
@@ -254,7 +245,7 @@ Add logging to OrderService
 
 ---
 
-## ?? Limitations
+##  Limitations
 
 - LLM output is probabilistic and may require review
 - Code generation quality depends on available context
@@ -263,7 +254,7 @@ Add logging to OrderService
 
 ---
 
-## ?? Free Resources Implementation
+##  Free Resources Implementation
 
 - Local Ollama for LLM inference (no cloud cost)
 - Semantic Kernel (open-source)
@@ -272,19 +263,19 @@ Add logging to OrderService
 
 ---
 
-## ?? Keeping this README Current
+##  Keeping this README Current
 
 This file should be updated whenever new workflows, endpoints, or services are added. Keep the features, architecture, and usage steps aligned with the latest release.
 
 ---
 
-## ????? Author
+## ? Author
 
 **Shyam**
 Senior Software Engineer (.NET / Azure)
 
 ---
 
-## ? If you like this project
+## If you like this project
 
-Give it a ? on GitHub and feel free to connect!
+Give it * on GitHub and feel free to connect!
